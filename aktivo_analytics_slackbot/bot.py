@@ -19,11 +19,34 @@ def initialize_database(path):
         conn.close()
 
 
-def dump_df(df):
-    pass
+def _generate_df_html(df, outpath):
+    root = os.path.dirname(os.path.abspath(__file__))
+    templates_dir = os.path.join(root, 'templates')
+    env = Environment(loader=FileSystemLoader(templates_dir))
+    template = env.get_template('table.html')
+    context = {"cols": df.columns, "rows": map(lambda x: x[1], df.iterrows())}
+    out_html = template.render(**context)
+    with open(outpath, "w") as f:
+        f.write(out_html)
 
 
-def generate_template(text):
+def dump_df_png(df, script_path, out_path):
+    """Dumps the output data to a dataframe
+
+    Args:
+        df (TYPE): Description
+    """
+
+    _generate_df_png(df, "temp.html")
+    try:
+        os.system(f"{script_path} ./temp.html, -o {out_path}")
+    except:
+        raise
+    finally:
+        os.remove("temp.html")
+
+
+def generate_slack_message(text):
     return {
         "channel": "test_channel",
         "blocks": [
@@ -33,23 +56,41 @@ def generate_template(text):
 
 
 class AnalyticsCSUpdater:
-    def __init__(self, bq_client, target_companies=None):
+    def __init__(self, bq_client, wk2png_path, target_companies=None):
+        """Summary
+
+        Args:
+            bq_client (TYPE): Authenticated bigquery client
+            wk2png_path (TYPE): Path to the webkit2png script
+            target_companies (list, optional): Company IDs to be summarized
+        """
         self.bq_client = bq_client
+        self.wk2png_path = wk2png_path
         self.target_companies = target_companies
         company_name_map = self.bq_client.query(
             """
             SELECT company_id, company_name
             FROM `aktivophase2pushnotification.integrated_reporting_precomp.company_name_map`
-        """
+            """
         ).to_dataframe()
         self.company_name_map = {i.company_id: i.company_name for idx, i in company_name_map.iterrows()}
 
     def _get_datum(self, date, company_id):
-        query = f"""
+        """Gets the indvidual user data column for a given company at a specific date
+
+        Args:
+            date (TYPE): Description
+            company_id (TYPE): Description
+
+        Returns:
+            TYPE: Description
+        """
+
+        query = f'''
         SELECT * FROM `aktivophase2pushnotification.integrated_reporting_precomp.cs_interative_compiled`
         WHERE end_date = DATE("{date.strftime("%Y-%m-%d")}")
         AND company_id = "{company_id}"
-        """
+        '''
         res = self.bq_client.query(query).to_dataframe()
         return res
 
@@ -67,11 +108,23 @@ class AnalyticsCSUpdater:
             base = base.merge(i.iloc[:, 1:4], on=["end_date", "subcategory"])
         return base
 
-    def dump_data(self, data):
-        pass
+    def dump_data(self, data_df, outpath, format="png"):
+        """Dumps the resultant output dataframe to a format of our choice
+
+        Args:
+            data_df (TYPE): Description
+
+        Deleted Parameters:
+            data (TYPE): Description
+        """
+        if format == "png":
+            dump_df_png(data_df, self.wk2png_path, outpath)
+
+        else:
+            raise Exception("Unsupported format")
 
     def generate_message_payload(self, date):
-        template = generate_template("Test Message")
+        template = generate_slack_message("Test Message")
         return template
 
 
