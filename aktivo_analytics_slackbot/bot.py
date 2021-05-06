@@ -1,10 +1,11 @@
-from slack import WebClient
 import os
 import sqlite3
-import argparse
+
 from google.cloud import bigquery
 from google.oauth2 import service_account
 from datetime import datetime, timezone, timedelta
+from jinja2 import Environment, FileSystemLoader
+import os
 
 
 def initialize_database(path):
@@ -75,31 +76,8 @@ class AnalyticsCSUpdater:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("slack_token_path")
-    parser.add_argument("bigquery_auth_path")
-    parser.add_argument("--existing_db", default="./runs.sqlite3")
-    args = parser.parse_args()
-    with open(args.slack_token_path) as f:
-        slack_token = f.read().strip()
-    slack_client = WebClient(slack_token)
+    import pandas as pd
 
-    credentials = service_account.Credentials.from_service_account_file(args.bigquery_auth_path)
-    bq_client = bigquery.Client(credentials=credentials)
-
-    # Initialize the client
-    if not os.path.exists(args.existing_db):
-        initialize_database(args.existing_db)
-
-    target_companies = [
-        "603de62548d6dc001315dfb4",
-        "5b3eefcc04802c000ff7c91e",
-        "603a1e1248d6dc001315a2c7",
-        "600690d96bbcf900128a87d8",
-        "5ed45e746be1a70012b152b7",
-    ]
-    bot = AnalyticsCSUpdater(bq_client, target_companies)
-    current_date = datetime.now(timezone.utc)
-    print(bot.get_data(current_date))
-    message = bot.generate_message_payload(1)
-    slack_client.chat_postMessage(**message)
+    _df = pd.DataFrame({"col1": [1, 2, 3], "col2": [1, 2, 3]})
+    print(_df.columns)
+    _generate_df_html(_df, "test.html")
