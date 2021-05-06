@@ -19,7 +19,8 @@ def initialize_database(path):
     finally:
         conn.close()
 
-def dump_table
+def dump_df(df):
+    pass
 
 
 def generate_template(text):
