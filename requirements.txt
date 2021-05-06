@@ -1,0 +1,5 @@
+jinja2
+google-cloud-bigquery
+google-cloud-storage
+webkit2png
+slackclient
