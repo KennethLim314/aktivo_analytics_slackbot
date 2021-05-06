@@ -32,7 +32,7 @@ if __name__ == "__main__":
         "600690d96bbcf900128a87d8",
         "5ed45e746be1a70012b152b7"
 ,    ]
-    bot = AnalyticsCSUpdater(bq_client, target_companies)
+    bot = AnalyticsCSUpdater(bq_client, wk2png_path=args.w2p_path, target_companies=target_companies)
     current_date = datetime.now(timezone.utc)
     print(bot.get_data(current_date))
     message = bot.generate_message_payload(1)
