@@ -1,11 +1,8 @@
 import os
 import sqlite3
 
-from google.cloud import bigquery
-from google.oauth2 import service_account
 from datetime import datetime, timezone, timedelta
 from jinja2 import Environment, FileSystemLoader
-import os
 
 
 def initialize_database(path):

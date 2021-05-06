@@ -1,5 +1,10 @@
 import argparse
 from slack import WebClient
+from google.cloud import bigquery
+from google.oauth2 import service_account
+
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("slack_token_path")
