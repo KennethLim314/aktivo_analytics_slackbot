@@ -7,8 +7,6 @@ from google.oauth2 import service_account
 from datetime import datetime, timezone, timedelta
 
 
-
-
 def initialize_database(path):
     conn = None
     try:
@@ -18,6 +16,7 @@ def initialize_database(path):
         raise
     finally:
         conn.close()
+
 
 def dump_df(df):
     pass
@@ -36,10 +35,12 @@ class AnalyticsCSUpdater:
     def __init__(self, bq_client, target_companies=None):
         self.bq_client = bq_client
         self.target_companies = target_companies
-        company_name_map = self.bq_client.query("""
+        company_name_map = self.bq_client.query(
+            """
             SELECT company_id, company_name
             FROM `aktivophase2pushnotification.integrated_reporting_precomp.company_name_map`
-        """).to_dataframe()
+        """
+        ).to_dataframe()
         self.company_name_map = {i.company_id: i.company_name for idx, i in company_name_map.iterrows()}
 
     def _get_datum(self, date, company_id):
@@ -83,9 +84,7 @@ if __name__ == "__main__":
         slack_token = f.read().strip()
     slack_client = WebClient(slack_token)
 
-    credentials = service_account.Credentials.from_service_account_file(
-        args.bigquery_auth_path
-    )
+    credentials = service_account.Credentials.from_service_account_file(args.bigquery_auth_path)
     bq_client = bigquery.Client(credentials=credentials)
 
     # Initialize the client
@@ -97,7 +96,7 @@ if __name__ == "__main__":
         "5b3eefcc04802c000ff7c91e",
         "603a1e1248d6dc001315a2c7",
         "600690d96bbcf900128a87d8",
-        "5ed45e746be1a70012b152b7"
+        "5ed45e746be1a70012b152b7",
     ]
     bot = AnalyticsCSUpdater(bq_client, target_companies)
     current_date = datetime.now(timezone.utc)
