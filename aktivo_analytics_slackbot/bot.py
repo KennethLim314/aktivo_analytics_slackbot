@@ -1,7 +1,7 @@
 import os
 import sqlite3
 
-from datetime import datetime, timezone, timedelta
+from datetime import timedelta
 from jinja2 import Environment, FileSystemLoader
 
 

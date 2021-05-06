@@ -4,7 +4,7 @@ from slack import WebClient
 from google.cloud import bigquery
 from google.oauth2 import service_account
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 if __name__ == "__main__":
