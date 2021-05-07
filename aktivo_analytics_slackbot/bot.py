@@ -141,16 +141,48 @@ class AnalyticsCSUpdater:
         Returns:
             TYPE: Description
         """
+        return self._get_data(date, date, company_id)
 
+    def _get_data(self, start_date, end_date, company_id):
+        """Pulls user data for a given company at for all days within a daterange
+
+        Args:
+            start_date (TYPE): Description
+            end_date (TYPE): Description
+            company_id (TYPE): Description
+
+        Returns:
+            TYPE: Description
+        """
         query = f'''
         SELECT * FROM `aktivophase2pushnotification.integrated_reporting_precomp.cs_interative_compiled`
-        WHERE end_date = DATE("{date.strftime("%Y-%m-%d")}")
+        WHERE end_date BETWEEN DATE("{start_date.strftime("%Y-%m-%d")}") AND DATE("{end_date.strftime("%Y-%m-%d")}")
         AND company_id = "{company_id}"
         '''
         res = self.bq_client.query(query).to_dataframe()
         return res
 
     def get_data(self, date):
+        """Generates a dataframe containing all activity data for a given day
+
+        Args:
+            date (TYPE): Description
+
+        Returns:
+            TYPE: Description
+        """
+        def rename_subcategory(string):
+            pref, suff = string.split("_")
+            return prefix_map[pref] + suffix_map[suff]
+
+        def generate_order(string):
+            """Processes subcategory strings to order the data
+            """
+            pref, suff = string.split("_")
+            suff_map = {"daily": "0", "weekly": "1", "monthly": "2", "total": "3"}
+            pref_map = {"active": "0", "syncs": "1", "created": "2", "activated": "3"}
+            return pref_map[pref] + suff_map[suff]
+
         holder = []
         for company_id in self.target_companies:
             company_name = self.company_name_map[company_id]
