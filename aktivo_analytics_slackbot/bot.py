@@ -16,6 +16,7 @@ def file2bin(file):
             blob_data = f.read()
     return blob_data
 
+
 def initialize_database(path, purge=False):
     """Initializes the run_tracking database, creating the tables if necessary
 
@@ -64,23 +65,31 @@ def dump_df_png(df, script_path, out_path):
     """Dumps the output data to a dataframe
 
     Args:
-        df (TYPE): Description
+        df (TYPE): Dataframe to be dumped
+        script_path (TYPE): Path to the the webkit2png script used for dataframe export
+        out_path (TYPE): Output path for the resultant image
+
+    Returns:
+        out_path: Parth of the output dataframe
     """
 
-    _generate_df_png(df, "temp.html")
+    _generate_df_html(df, "temp.html")
     try:
-        os.system(f"{script_path} ./temp.html, -o {out_path}")
+        cmd = f"python {script_path} ./temp.html -o {out_path}"
+        print(f"Generating Image with command {cmd}")
+        subprocess.run(cmd, check=True)
+        assert os.path.exists(out_path)
+        print("Successfully generated image")
     except:
         raise
     finally:
-        os.remove("temp.html")
-
-
-def generate_slack_message(text):
-    return {
-        "channel": "test_channel",
-        "blocks": [
-            {"type": "section", "text": {"type": "mrkdwn", "text": text}},
+        try:
+            # os.remove("temp.html")
+            pass
+        except PermissionError:
+            time.sleep(2)
+            os.remove("temp.html")
+    return out_path
         ],
     }
 
