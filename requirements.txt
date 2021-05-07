@@ -1,6 +1,9 @@
 jinja2
 google-cloud-bigquery
 google-cloud-storage
+google-cloud-bigquery-storage
 webkit2png
 slackclient
 pandas
+pyarrow
+nose
