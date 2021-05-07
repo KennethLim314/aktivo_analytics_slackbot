@@ -3,6 +3,18 @@ import sqlite3
 
 from datetime import timedelta
 from jinja2 import Environment, FileSystemLoader
+def file2bin(file):
+    """Converts a file or filepath to a file to binary data
+
+    Args:
+        file (TYPE): Description
+    """
+    try:
+        blob_data = file.read()
+    except AttributeError:
+        with open(file, "rb") as f:
+            blob_data = f.read()
+    return blob_data
 
 def initialize_database(path, purge=False):
     """Initializes the run_tracking database, creating the tables if necessary
