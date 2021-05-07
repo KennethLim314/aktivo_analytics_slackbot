@@ -1,8 +1,16 @@
 import os
 import sqlite3
-
-from datetime import timedelta
+import subprocess
+from datetime import timedelta, datetime
 from jinja2 import Environment, FileSystemLoader
+import time
+from io import StringIO
+import logging
+
+logging.basicConfig(level=logging.DEBUG, format="[%(levelname)s][%(filename)s:%(lineno)s] %(message)s")
+logger = logging.getLogger("bot")
+
+
 def file2bin(file):
     """Converts a file or filepath to a file to binary data
 
@@ -154,6 +162,16 @@ class AnalyticsCSUpdater:
         base = holder[0].iloc[:, 1:4]
         for i in holder[1:]:
             base = base.merge(i.iloc[:, 1:4], on=["end_date", "subcategory"])
+        # Neaten up the rownames by renaming columns and adding dividers and sorting the columns to put a custom order
+        prefix_map, suffix_map = {
+            "activated": "First Logins: ",
+            "active": "Active Users: ",
+            "created": "User Registrations: ",
+            "syncs": "Unique User Syncs: ",
+        }, {"daily": "Daily", "weekly": "Week to Date", "monthly": "Month to Date", "total": "All time"}
+        base["order"] = base["subcategory"].apply(generate_order)
+        base["subcategory"] = base["subcategory"].apply(rename_subcategory)
+        base = base.sort_values("order").drop(columns="order")
         return base
 
     def dump_data(self, data_df, outpath, format="png"):
