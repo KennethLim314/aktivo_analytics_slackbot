@@ -93,16 +93,26 @@ def dump_df_png(df, script_path, out_path):
 
 
 class AnalyticsCSUpdater:
-    def __init__(self, bq_client, wk2png_path, target_companies=None):
+    def __init__(
+        self, bq_client, slack_client, wk2png_path, sql_conn, target_companies=None, target_channel="test_channel"
+    ):
         """Summary
 
         Args:
             bq_client (TYPE): Authenticated bigquery client
+            slack_client (TYPE): Authneticated Slack client
             wk2png_path (TYPE): Path to the webkit2png script
+            sql_conn (TYPE): connection to a sqlite database
             target_companies (list, optional): Company IDs to be summarized
+            target_channel (str, optional): Which channel should this bot post to
         """
         self.bq_client = bq_client
+        self.slack_client = slack_client
         self.wk2png_path = wk2png_path
+
+        self.sql_conn = sql_conn
+
+        self.target_channel = target_channel
         self.target_companies = target_companies
         company_name_map = self.bq_client.query(
             """
@@ -110,6 +120,7 @@ class AnalyticsCSUpdater:
             FROM `aktivophase2pushnotification.integrated_reporting_precomp.company_name_map`
             """
         ).to_dataframe()
+
         self.company_name_map = {i.company_id: i.company_name for idx, i in company_name_map.iterrows()}
 
     def _get_datum(self, date, company_id):
