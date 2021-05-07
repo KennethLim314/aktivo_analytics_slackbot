@@ -90,8 +90,6 @@ def dump_df_png(df, script_path, out_path):
             time.sleep(2)
             os.remove("temp.html")
     return out_path
-        ],
-    }
 
 
 class AnalyticsCSUpdater:
