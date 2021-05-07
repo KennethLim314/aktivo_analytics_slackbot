@@ -162,9 +162,58 @@ class AnalyticsCSUpdater:
         else:
             raise Exception("Unsupported format")
 
-    def generate_message_payload(self, date):
-        template = generate_slack_message("Test Message")
-        return template
+    def send_message_text(self, text):
+        """Sends a simple plain text message
+
+        Args:
+            text (TYPE): Description
+        """
+        params = {
+            "channel": self.target_channel,
+            "blocks": [
+                {"type": "section", "text": {"type": "mrkdwn", "text": text}},
+            ],
+        }
+        print(f"Sending message with params: {params}")
+        self.slack_client.chat_postMessage(**params)
+
+    def send_message_data_image(self, data_df, title):
+        """Sends a message
+
+        Args:
+            data_df (TYPE): Description
+            title (TYPE): Description
+
+        Returns:
+            TYPE: Description
+        """
+        image_path = dump_df_png(data_df, self.wk2png_path, "./temp.png")
+        with open(image_path, "rb") as f:
+            params = {
+                "channels": self.target_channel,
+                "filename": "temp.png",
+                "file": f,
+                "initial_comment": title,
+            }
+            print(f"Sending with params: {params}")
+            self.slack_client.files_upload(**params)
+        print(f"Successfully sent image")
+
+        # Log the run in DB, dumping all data
+        target_date = data_df.end_date[0]
+        run_date = datetime.now()
+        image_blob = file2bin(image_path)
+        _tempfile = StringIO()
+        data_df.to_csv(_tempfile)
+        table_blob = file2bin(_tempfile)
+        insert_query = """INSERT INTO runs
+        (run_date, target_date, output_table, output_image) VALUES (?, ?, ?, ?)
+        """
+        data_tuple = (run_date, target_date, table_blob, image_blob)
+        print(data_tuple[:2])
+        self.sql_conn.execute(insert_query, data_tuple)
+        self.sql_conn.commit()
+        return
 
 
 if __name__ == "__main__":
