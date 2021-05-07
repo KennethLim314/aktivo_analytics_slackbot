@@ -34,7 +34,7 @@ def get_output_date_range(conn, max_days=4, current_date=None, min_start_date=No
     cur = conn.cursor()
     cur.execute(
         """
-        SELECT MAX(run_date) FROM runs;
+        SELECT MAX(target_date) FROM runs;
     """
     )
 
