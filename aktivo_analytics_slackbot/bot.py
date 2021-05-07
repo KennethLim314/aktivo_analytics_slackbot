@@ -4,16 +4,37 @@ import sqlite3
 from datetime import timedelta
 from jinja2 import Environment, FileSystemLoader
 
+def initialize_database(path, purge=False):
+    """Initializes the run_tracking database, creating the tables if necessary
 
-def initialize_database(path):
+    Args:
+        path (TYPE): Description
+    """
+    if purge and os.path.exists(path) and "memory" not in path:
+        logger.info(f"Removing existing database at {path}")
+        os.remove(path)
     conn = None
     try:
         conn = sqlite3.connect(path)
-        print(conn)
+        cur = conn.cursor()
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS runs(
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                run_date DATETIME NOT NULL,
+                target_date DATE NOT NULL,
+                output_table BLOB NOT NULL,
+                output_image BLOB NOT NULL,
+                run_type STRING
+            );
+            """
+        )
+
+        conn.commit()
     except:
-        raise
-    finally:
         conn.close()
+        raise
+    return conn
 
 
 def _generate_df_html(df, outpath):
