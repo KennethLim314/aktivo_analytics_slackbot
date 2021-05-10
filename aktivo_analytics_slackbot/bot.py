@@ -7,6 +7,9 @@ import time
 from io import StringIO
 import logging
 
+import imgkit
+
+
 logging.basicConfig(level=logging.DEBUG, format="[%(levelname)s][%(filename)s:%(lineno)s] %(message)s")
 logger = logging.getLogger("bot")
 
@@ -82,12 +85,9 @@ def dump_df_png(df, script_path, out_path):
     """
 
     _generate_df_html(df, "temp.html")
+
     try:
-        cmd = f"python {script_path} ./temp.html -o {out_path}"
-        print(f"Generating Image with command {cmd}")
-        subprocess.run(cmd, check=True)
-        assert os.path.exists(out_path)
-        print("Successfully generated image")
+        imgkit.from_file("temp.html", out_path)
     except:
         raise
     finally:
@@ -171,13 +171,13 @@ class AnalyticsCSUpdater:
         Returns:
             TYPE: Description
         """
+
         def rename_subcategory(string):
             pref, suff = string.split("_")
             return prefix_map[pref] + suffix_map[suff]
 
         def generate_order(string):
-            """Processes subcategory strings to order the data
-            """
+            """Processes subcategory strings to order the data"""
             pref, suff = string.split("_")
             suff_map = {"daily": "0", "weekly": "1", "monthly": "2", "total": "3"}
             pref_map = {"active": "0", "syncs": "1", "created": "2", "activated": "3"}
