@@ -73,10 +73,8 @@ def run_bot(bot, start_date, end_date):
             data,
             (
                 f"Application User Data for *{target_date.strftime('%Y-%m-%d')}*\n\n"
-
                 f"Week to Date (WTD) taken into account: "
                 f"*{wtd_start.strftime('%Y-%m-%d')}* - *{target_date.strftime('%Y-%m-%d')}*\n"
-
                 f"Month to Date (MTD) taken into account: "
                 f"*{mtd_start.strftime('%Y-%m-%d')}* - *{target_date.strftime('%Y-%m-%d')}*\n"
             ),
@@ -127,7 +125,10 @@ if __name__ == "__main__":
         default=2,
         type=int,
         help="Number of new days of updates to push through at once. This"
-             " stops the bot from spamming incessantly if too little data is present",
+        " stops the bot from spamming incessantly if too little data is present",
+    )
+    parser.add_argument(
+        "--target_channel", default="test_channel", help="Which channel should the bot post to by default"
     )
     args = parser.parse_args()
 
@@ -160,6 +161,7 @@ if __name__ == "__main__":
         sql_conn=conn,
         wk2png_path=os.path.join(args.w2p_path, "scripts.py"),
         target_companies=target_companies,
+        target_channel=args.target_channel
     )
 
     # Execution of the bot
