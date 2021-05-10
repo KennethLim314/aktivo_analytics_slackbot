@@ -53,7 +53,7 @@ def daterange(start_date, end_date):
     cur_date = start_date
     while True:
         if cur_date >= end_date:
-            raise StopIteration
+            return
         yield cur_date
         cur_date += timedelta(days=1)
 
