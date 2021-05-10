@@ -67,12 +67,12 @@ def run_bot(bot, start_date, end_date):
             logger.warning(f"No data found for date={end_date.strftime('%Y-%m-%d')}")
             continue
         # Rename the data to make it more pleasant to the eye
-        wtd_start = start_date - timedelta(days=start_date.day)
-        mtd_start = start_date + timedelta(days=-start_date.day + 1)
+        wtd_start = start_date - timedelta(days=start_date.weekday())
+        mtd_start = start_date - timedelta(days=start_date.day - 1)
         bot.send_message_data_image(
             data,
             (
-                f"Application User Data for *{target_date.strftime('%Y-%m-%d')}*\n\n"
+                f"Application User Data for *{target_date.strftime('%Y-%m-%d')}*. UTC 0000-2400 \n\n"
                 f"Week to Date (WTD) taken into account: "
                 f"*{wtd_start.strftime('%Y-%m-%d')}* - *{target_date.strftime('%Y-%m-%d')}*\n"
                 f"Month to Date (MTD) taken into account: "
