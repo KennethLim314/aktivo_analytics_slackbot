@@ -44,7 +44,7 @@ def get_output_date_range(conn, max_days=4, current_date=None, min_start_date=No
     if not rows[0][0]:
         start = min_start_date
     else:
-        start = max(parse(rows[0][0]).date(), min_start_date)
+        start = max(parse(rows[0][0]).date() +timedelta(days=1), min_start_date)
     end = min(start + timedelta(days=max_days), current_date)
     return start, end
 
