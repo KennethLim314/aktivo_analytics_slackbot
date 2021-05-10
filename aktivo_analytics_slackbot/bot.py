@@ -72,12 +72,11 @@ def _generate_df_html(df, outpath):
         f.write(out_html)
 
 
-def dump_df_png(df, script_path, out_path):
+def dump_df_png(df, out_path):
     """Dumps the output data to a dataframe
 
     Args:
         df (TYPE): Dataframe to be dumped
-        script_path (TYPE): Path to the the webkit2png script used for dataframe export
         out_path (TYPE): Output path for the resultant image
 
     Returns:
@@ -102,21 +101,20 @@ def dump_df_png(df, script_path, out_path):
 
 class AnalyticsCSUpdater:
     def __init__(
-        self, bq_client, slack_client, wk2png_path, sql_conn, target_companies=None, target_channel="test_channel"
+        self, bq_client, slack_client, sql_conn, target_companies=None, target_channel="test_channel"
     ):
         """Summary
 
         Args:
             bq_client (TYPE): Authenticated bigquery client
             slack_client (TYPE): Authneticated Slack client
-            wk2png_path (TYPE): Path to the webkit2png script
             sql_conn (TYPE): connection to a sqlite database
             target_companies (list, optional): Company IDs to be summarized
             target_channel (str, optional): Which channel should this bot post to
+
         """
         self.bq_client = bq_client
         self.slack_client = slack_client
-        self.wk2png_path = wk2png_path
 
         self.sql_conn = sql_conn
 
@@ -216,7 +214,7 @@ class AnalyticsCSUpdater:
             data (TYPE): Description
         """
         if format == "png":
-            dump_df_png(data_df, self.wk2png_path, outpath)
+            dump_df_png(data_df, outpath)
 
         else:
             raise Exception("Unsupported format")
@@ -246,7 +244,7 @@ class AnalyticsCSUpdater:
         Returns:
             TYPE: Description
         """
-        image_path = dump_df_png(data_df, self.wk2png_path, "./temp.png")
+        image_path = dump_df_png(data_df, "./temp.png")
         # Preprepare params
         target_date = data_df.end_date[0]
         run_date = datetime.now()

@@ -94,9 +94,6 @@ if __name__ == "__main__":
     parser.add_argument("bigquery_auth_path")
     parser.add_argument("--data_dir", default="./analytics_slackbot_data")
     parser.add_argument(
-        "--w2p_path", default="./req_libs/python-webkit2png/webkit2png", help="Path to the webkit2png library"
-    )
-    parser.add_argument(
         "--purge", default=False, action="store_true", help="Reinitialize the database, wiping all data"
     )
     parser.add_argument(
@@ -159,7 +156,6 @@ if __name__ == "__main__":
         bq_client,
         slack_client,
         sql_conn=conn,
-        wk2png_path=os.path.join(args.w2p_path, "scripts.py"),
         target_companies=target_companies,
         target_channel=args.target_channel
     )
