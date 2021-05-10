@@ -6,3 +6,4 @@ slackclient
 pandas
 pyarrow
 nose
+imgkit
