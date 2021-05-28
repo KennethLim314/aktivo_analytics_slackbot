@@ -45,7 +45,9 @@ def get_output_date_range(conn, max_days=4, current_date=None, min_start_date=No
         start = min_start_date
     else:
         start = max(parse(rows[0][0]).date() +timedelta(days=1), min_start_date)
-    end = min(start + timedelta(days=max_days), current_date)
+    # Don't put too recent data, it can often be wrong
+    # Add in double checks down the line
+    end = min(start + timedelta(days=max_days), current_date - timedelta(days=2))
     return start, end
 
 
@@ -168,7 +170,7 @@ if __name__ == "__main__":
     logger.debug(f"raw start_date: {start_date}")
     start_date, end_date = get_output_date_range(conn, min_start_date=start_date, max_days=args.n_days)
     logger.info(f"Generating data for daterange: {start_date}, {end_date}")
-    if start_date == end_date:
+    if start_date >= end_date:
         logger.info("Current posts already up to date")
         quit()
     if args.dryrun:
