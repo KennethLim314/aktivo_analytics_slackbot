@@ -64,7 +64,15 @@ def run_bot(bot, start_date, end_date):
     # Make sure an end_date exists
     # What if there's no data for that date for some companies (ignore for now)
     for target_date in daterange(start_date, end_date):
+        #Pull the data df
         data = bot.get_data(target_date)
+        # Clean the data types by converting floats to nan-aware integers
+        for col in data:
+            if col in ("end_date", "subcategory"):
+                continue
+            data[col] = data[col].astype(pd.Int64Dtype())
+        # print(data)
+        # raise
         if data.shape[0] < 1:
             logger.warning(f"No data found for date={end_date.strftime('%Y-%m-%d')}")
             continue
